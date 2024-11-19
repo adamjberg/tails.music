@@ -18,7 +18,7 @@ export default function Index() {
   const { html } = useLoaderData() as { html: string };
 
   return (
-    <div className="mx-auto max-w-screen-md">
+    <div className="mx-auto max-w-screen-md px-4">
       <h1 className="text-4xl font-bold my-4 text-center">music.tails</h1>
       <div className="prose" dangerouslySetInnerHTML={{ __html: html }}></div>
     </div>
