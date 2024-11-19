@@ -14,6 +14,7 @@
     "@remix-run/node": "^2.14.0",
     "@remix-run/react": "^2.14.0",
     "@remix-run/serve": "^2.14.0",
+    "canvas": "^2.11.2",
     "isbot": "^4.1.0",
     "marked": "^15.0.1",
     "react": "^18.2.0",
