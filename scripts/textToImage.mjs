@@ -1,6 +1,6 @@
 import { createCanvas } from 'canvas';
 import fs from 'fs';
-function textToImage(text) {
+export function textToImage(text) {
     // Create a 1080x1080 canvas
     const canvas = createCanvas(1080, 1080);
     const ctx = canvas.getContext('2d');
