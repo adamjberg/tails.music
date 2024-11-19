@@ -11,7 +11,7 @@ function textToImage(text) {
 
     // Configure text style
     ctx.fillStyle = 'black';
-    ctx.font = '72px Arial'; // Starting font size, will be adjusted if needed
+    ctx.font = '72px Inter'; // Starting font size, will be adjusted if needed
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
@@ -58,7 +58,7 @@ function textToImage(text) {
     
     while ((maxTextWidth > maxWidth || (fontSize * 1.2 * lines.length) > (1080 - padding * 2)) && fontSize > 12) {
         fontSize -= 2;
-        ctx.font = `${fontSize}px Arial`;
+        ctx.font = `${fontSize}px Inter`;
         
         // Recalculate wrapped lines with new font size
         lines = [];
@@ -98,7 +98,7 @@ if (!text) {
 // Create image from text
 const canvas = textToImage(text);
 
-const out = fs.createWriteStream('out/output.png');
+const out = fs.createWriteStream(`out/${Date.now()}.png`);
 const stream = canvas.createPNGStream();
 stream.pipe(out);
 out.on('finish', () => console.log('Image saved as output.png'));

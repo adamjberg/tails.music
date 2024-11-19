@@ -6,21 +6,36 @@ import { useLoaderData } from "@remix-run/react";
 export const meta: MetaFunction = () => {
   return [{ title: "music.tails" }];
 };
-
 export const loader = async () => {
-  const filePath = "app/posts/2024-11-18.md";
-  const file = await fs.readFile(filePath, "utf-8");
-  const html = marked.parse(file);
-  return { html };
+  const postsDir = "app/posts";
+  const files = await fs.readdir(postsDir);
+  const posts = await Promise.all(
+    files
+      .filter((file) => file.endsWith(".md"))
+      .sort((a, b) => b.localeCompare(a)) // Sort filenames in descending order
+      .map(async (file) => {
+        const filePath = `${postsDir}/${file}`;
+        const content = await fs.readFile(filePath, "utf-8");
+        const html = marked.parse(content);
+        return { html };
+      })
+  );
+  return { posts };
 };
 
 export default function Index() {
-  const { html } = useLoaderData() as { html: string };
+  const { posts } = useLoaderData() as { posts: { html: string }[] };
 
   return (
     <div className="mx-auto max-w-screen-md px-4">
       <h1 className="text-4xl font-bold my-4 text-center">music.tails</h1>
-      <div className="prose" dangerouslySetInnerHTML={{ __html: html }}></div>
+      {posts.map((post, index) => (
+        <div
+          className="prose"
+          key={index}
+          dangerouslySetInnerHTML={{ __html: post.html }}
+        ></div>
+      ))}
     </div>
   );
 }
