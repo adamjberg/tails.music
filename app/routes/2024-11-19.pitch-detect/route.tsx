@@ -13,14 +13,15 @@ export default function Index() {
   const [lastPitch, setLastPitch] = useState<number | null>(null);
   const pitchHistoryRef = useRef<number[]>([]);
 
-  const currentNote = Array.from(frequencies.entries()).reduce(
-    (closest, [note, freq]) => {
-      const currentDiff = Math.abs(freq - frequencyToPlay);
-      const closestDiff = Math.abs(closest[1] - frequencyToPlay);
+  const findClosestNote = (frequency: number) => {
+    return Array.from(frequencies.entries()).reduce((closest, [note, freq]) => {
+      const currentDiff = Math.abs(freq - frequency);
+      const closestDiff = Math.abs(closest[1] - frequency);
       return currentDiff < closestDiff ? [note, freq] : closest;
-    },
-    Array.from(frequencies.entries())[0]
-  )[0];
+    }, Array.from(frequencies.entries())[0])[0];
+  };
+
+  const currentNote = findClosestNote(frequencyToPlay);
 
   const startRecording = async () => {
     try {
@@ -96,7 +97,9 @@ export default function Index() {
         {isRecording ? "Stop Recording" : "Start Recording"}
       </button>
       <div className="text-center mt-4">
-        Last detected pitch: {lastPitch?.toFixed(2) ?? "None"} Hz
+        {!!lastPitch
+          ? `${findClosestNote(lastPitch)} - ${lastPitch?.toFixed(2)} Hz`
+          : "None"}
       </div>
     </div>
   );
