@@ -87,7 +87,7 @@ export default function Index() {
   };
 
   return (
-    <div className="relative h-screen w-full">
+    <div className="relative h-[100dvh] w-full">
       <div className="absolute inset-0">
         <video
           ref={videoRef}
@@ -98,7 +98,7 @@ export default function Index() {
         />
       </div>
       <div className="relative z-10 mx-auto max-w-screen-lg h-full flex flex-col">
-        <div className="p-4 flex flex-col justify-between h-full">
+        <div className="p-4 flex flex-col justify-between h-full safe-area-inset-top safe-area-inset-bottom">
           <div className="text-center text-white font-bold text-xl">
             {!!lastPitch
               ? `${findClosestNote(lastPitch)} - ${Math.round(lastPitch)} Hz`
