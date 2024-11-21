@@ -102,29 +102,22 @@ export default function Index() {
         />
       </div>
       <div className="relative z-10 mx-auto max-w-screen-lg h-full flex flex-col">
-        <div className="p-4 flex flex-col justify-between h-full safe-area-inset-top safe-area-inset-bottom">
-          <div className="text-center text-white font-bold text-xl">
+        <div className="p-4 pt-16 flex flex-col justify-between h-full safe-area-inset-top safe-area-inset-bottom">
+          <div className="text-center text-white font-bold text-3xl">
             {!!lastPitch
               ? `${findClosestNote(lastPitch)} - ${Math.round(lastPitch)} Hz`
               : ""}
           </div>
-          <button
-            onClick={() => {
-              if (isRecordingRef.current) {
-                isRecordingRef.current = false;
-                setIsRecording(false);
-              } else {
+          {!isRecording && (
+            <button
+              onClick={() => {
                 startRecording();
-              }
-            }}
-            className={`mx-auto block px-4 py-2 text-white rounded ${
-              isRecording
-                ? "bg-red-500 hover:bg-red-600"
-                : "bg-green-500 hover:bg-green-600"
-            }`}
-          >
-            {isRecording ? "Stop" : "Start Recording"}
-          </button>
+              }}
+              className="mx-auto block px-4 py-2 text-white rounded bg-green-500 hover:bg-green-600"
+            >
+              Start
+            </button>
+          )}
         </div>
       </div>
     </div>
