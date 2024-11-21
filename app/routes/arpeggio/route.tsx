@@ -4,9 +4,6 @@ import { playSound } from "./playSound";
 import { useRef, useState, useEffect } from "react";
 
 export default function Index() {
-  const [frequencyToPlay, setFrequencyToPlay] = useState(
-    frequencies.get("D3")!
-  );
   const isRecordingRef = useRef(false);
   const [isRecording, setIsRecording] = useState(false);
   const streamRef = useRef<MediaStream | null>(null);
@@ -46,8 +43,6 @@ export default function Index() {
       return currentDiff < closestDiff ? [note, freq] : closest;
     }, Array.from(frequencies.entries())[0])[0];
   };
-
-  const currentNote = findClosestNote(frequencyToPlay);
 
   const startRecording = async () => {
     try {
@@ -92,49 +87,41 @@ export default function Index() {
   };
 
   return (
-    <div className="mx-auto max-w-screen-lg h-screen flex flex-col">
-      <div className="h-1/2 p-4 flex flex-col justify-center items-center">
-        <div className="flex justify-center items-center gap-4 mb-4">
-          <input
-            type="number"
-            value={frequencyToPlay}
-            onChange={(e) => setFrequencyToPlay(Number(e.target.value))}
-            className="px-2 py-1 border rounded"
-            step="0.1"
-          />
-          <button
-            onClick={() => playSound(frequencyToPlay)}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Play {currentNote}
-          </button>
-        </div>
-        <button
-          onClick={() => {
-            if (isRecordingRef.current) {
-              isRecordingRef.current = false;
-              setIsRecording(false);
-            } else {
-              startRecording();
-            }
-          }}
-          className="mx-auto block px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-        >
-          {isRecording ? "Stop Recording" : "Start Recording"}
-        </button>
-        <div className="text-center mt-4">
-          {!!lastPitch
-            ? `${findClosestNote(lastPitch)} - ${lastPitch?.toFixed(2)} Hz`
-            : "None"}
-        </div>
-      </div>
-      <div className="h-1/2 bg-black">
+    <div className="relative h-screen w-full">
+      <div className="absolute inset-0">
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
+          style={{ aspectRatio: "9/16", objectPosition: "center" }}
         />
+      </div>
+      <div className="relative z-10 mx-auto max-w-screen-lg h-full flex flex-col">
+        <div className="p-4 flex flex-col justify-between h-full">
+          <div className="text-center text-white font-bold text-xl">
+            {!!lastPitch
+              ? `${findClosestNote(lastPitch)} - ${Math.round(lastPitch)} Hz`
+              : ""}
+          </div>
+          <button
+            onClick={() => {
+              if (isRecordingRef.current) {
+                isRecordingRef.current = false;
+                setIsRecording(false);
+              } else {
+                startRecording();
+              }
+            }}
+            className={`mx-auto block px-4 py-2 text-white rounded ${
+              isRecording
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
+          >
+            {isRecording ? "Stop" : "Start Recording"}
+          </button>
+        </div>
       </div>
     </div>
   );
