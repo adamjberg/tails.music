@@ -3,6 +3,18 @@ import { frequencies } from "./frequencies";
 import { playSound } from "./playSound";
 import { useRef, useState, useEffect } from "react";
 
+import type { MetaFunction } from "@remix-run/node";
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: "Pitch Detector",
+      description:
+        "Prototype pitch detector in preparation for a mini-game I'm building",
+    },
+  ];
+};
+
 export default function Index() {
   const isRecordingRef = useRef(false);
   const [isRecording, setIsRecording] = useState(false);
