@@ -94,7 +94,11 @@ export default function Index() {
           autoPlay
           playsInline
           className="h-full w-full object-cover"
-          style={{ aspectRatio: "9/16", objectPosition: "center" }}
+          style={{
+            aspectRatio: "9/16",
+            objectPosition: "center",
+            transform: "scaleX(-1)",
+          }}
         />
       </div>
       <div className="relative z-10 mx-auto max-w-screen-lg h-full flex flex-col">
