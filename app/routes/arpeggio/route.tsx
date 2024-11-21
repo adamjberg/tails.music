@@ -16,7 +16,12 @@ export default function Index() {
     const startVideo = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
+          video: {
+            facingMode: "user",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            frameRate: { ideal: 60 },
+          },
         });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
