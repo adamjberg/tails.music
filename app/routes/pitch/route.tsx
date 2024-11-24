@@ -73,10 +73,28 @@ export default function Index() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
+      // Calculate dimensions to maintain aspect ratio while filling height
+      const videoAspect = video.videoWidth / video.videoHeight;
+
+      // Always set height to canvas height
+      const drawHeight = canvas.height;
+      // Calculate width based on video aspect ratio
+      const drawWidth = canvas.height * videoAspect;
+
+      // Center horizontally
+      const offsetX = (canvas.width - drawWidth) / 2;
+      const offsetY = 0;
+
       // Draw video
       ctx.save();
       ctx.scale(-1, 1); // Mirror the video
-      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.drawImage(
+        video,
+        -offsetX - drawWidth,
+        offsetY,
+        drawWidth,
+        drawHeight
+      );
       ctx.restore();
 
       // Draw UI elements
@@ -248,7 +266,13 @@ export default function Index() {
 
   return (
     <>
-      <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{ position: "absolute", width: 1, height: 1 }}
+      />
       <canvas ref={canvasRef} className="fixed inset-0 touch-none" />
     </>
   );
