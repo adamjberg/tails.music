@@ -23,11 +23,18 @@ export default function Index() {
   const pitchHistoryRef = useRef<number[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number>();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const canvasStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
+    // Create offscreen canvas
+    offscreenCanvasRef.current = document.createElement("canvas");
+    offscreenCanvasRef.current.width = 1080;
+    offscreenCanvasRef.current.height = 1920;
+
     // Start video stream when component mounts
     const startVideo = async () => {
       try {
@@ -62,71 +69,91 @@ export default function Index() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    const offscreenCanvas = offscreenCanvasRef.current;
     const video = videoRef.current;
-    if (!canvas || !video) return;
+    if (!canvas || !video || !offscreenCanvas) return;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const offscreenCtx = offscreenCanvas.getContext("2d");
+    if (!ctx || !offscreenCtx) return;
 
     const drawFrame = () => {
-      // Set canvas size to match window dimensions
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // Set display canvas size to maintain 9:16 aspect ratio while fitting window
+      const windowAspect = window.innerWidth / window.innerHeight;
+      const targetAspect = 9 / 16;
+
+      let canvasWidth, canvasHeight;
+      if (windowAspect > targetAspect) {
+        // Window is wider than target aspect - fit to height
+        canvasHeight = window.innerHeight;
+        canvasWidth = canvasHeight * targetAspect;
+      } else {
+        // Window is taller than target aspect - fit to width
+        canvasWidth = window.innerWidth;
+        canvasHeight = canvasWidth / targetAspect;
+      }
+
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
 
       // Calculate dimensions to maintain aspect ratio while filling height
       const videoAspect = video.videoWidth / video.videoHeight;
 
-      // Always set height to canvas height
-      const drawHeight = canvas.height;
-      // Calculate width based on video aspect ratio
-      const drawWidth = canvas.height * videoAspect;
-
-      // Center horizontally
-      const offsetX = (canvas.width - drawWidth) / 2;
+      // Draw to offscreen canvas first
+      const drawHeight = offscreenCanvas.height;
+      const drawWidth = offscreenCanvas.height * videoAspect;
+      const offsetX = (offscreenCanvas.width - drawWidth) / 2;
       const offsetY = 0;
 
-      // Draw video
-      ctx.save();
-      ctx.scale(-1, 1); // Mirror the video
-      ctx.drawImage(
+      offscreenCtx.save();
+      offscreenCtx.scale(-1, 1);
+      offscreenCtx.drawImage(
         video,
         -offsetX - drawWidth,
         offsetY,
         drawWidth,
         drawHeight
       );
-      ctx.restore();
+      offscreenCtx.restore();
 
-      // Draw UI elements
-      ctx.fillStyle = "white";
-      ctx.font = "bold 48px sans-serif";
-      ctx.textAlign = "center";
+      // Draw UI elements on offscreen canvas
+      offscreenCtx.fillStyle = "white";
+      offscreenCtx.font = "bold 48px sans-serif";
+      offscreenCtx.textAlign = "center";
 
-      // Draw pitch text
       if (lastPitch) {
         const text = `${findClosestNote(lastPitch)} - ${Math.round(
           lastPitch
         )} Hz`;
-        ctx.fillText(text, canvas.width / 2, 100);
+        offscreenCtx.fillText(text, offscreenCanvas.width / 2, 100);
       }
 
-      // Draw start/stop button
-      const buttonWidth = 120;
-      const buttonHeight = 50;
-      const buttonX = (canvas.width - buttonWidth) / 2;
-      const buttonY = canvas.height - 100;
+      const buttonWidth = 360; // 3x larger
+      const buttonHeight = 150; // 3x larger
+      const buttonX = (offscreenCanvas.width - buttonWidth) / 2;
+      const buttonY = offscreenCanvas.height - 200; // Moved up slightly to accommodate larger size
 
-      ctx.fillStyle = isRecording ? "#ef4444" : "#22c55e"; // red-500 : green-500
-      ctx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 8);
-      ctx.fill();
+      offscreenCtx.fillStyle = isRecording ? "#ef4444" : "#22c55e";
+      offscreenCtx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 24); // Increased border radius
+      offscreenCtx.fill();
 
-      ctx.fillStyle = "white";
-      ctx.font = "20px sans-serif";
-      ctx.fillText(
+      offscreenCtx.fillStyle = "white";
+      offscreenCtx.font = "60px sans-serif"; // 3x larger font
+      offscreenCtx.fillText(
         isRecording ? "Stop" : "Start",
-        canvas.width / 2,
-        buttonY + 32
+        offscreenCanvas.width / 2,
+        buttonY + 96 // Adjusted for larger button
       );
+
+      // Draw offscreen canvas to display canvas
+      ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+
+      if (canvasStreamRef.current) {
+        const videoTrack = canvasStreamRef.current.getVideoTracks()[0];
+        if (videoTrack) {
+          (videoTrack as any).requestFrame();
+        }
+      }
 
       animationFrameRef.current = requestAnimationFrame(drawFrame);
     };
@@ -134,16 +161,27 @@ export default function Index() {
     drawFrame();
 
     const handleClick = (e: MouseEvent) => {
-      const buttonWidth = 120;
-      const buttonHeight = 50;
+      const buttonWidth = 360; // Match button size above
+      const buttonHeight = 150;
       const buttonX = (canvas.width - buttonWidth) / 2;
-      const buttonY = canvas.height - 100;
+      const buttonY = canvas.height - 200;
+
+      // Get click position relative to canvas
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      // Scale coordinates based on canvas scaling
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const scaledX = x * scaleX;
+      const scaledY = y * scaleY;
 
       if (
-        e.clientX >= buttonX &&
-        e.clientX <= buttonX + buttonWidth &&
-        e.clientY >= buttonY &&
-        e.clientY <= buttonY + buttonHeight
+        scaledX >= buttonX &&
+        scaledX <= buttonX + buttonWidth &&
+        scaledY >= buttonY &&
+        scaledY <= buttonY + buttonHeight
       ) {
         if (isRecording) {
           stopRecording();
@@ -200,9 +238,10 @@ export default function Index() {
       const dataArray = new Float32Array(detector.inputLength);
 
       // Start canvas recording
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const canvasStream = canvas.captureStream(30);
+      const offscreenCanvas = offscreenCanvasRef.current;
+      if (offscreenCanvas) {
+        const canvasStream = offscreenCanvas.captureStream(0);
+        canvasStreamRef.current = canvasStream;
         const combinedStream = new MediaStream([
           ...canvasStream.getTracks(),
           ...stream.getTracks(),
@@ -256,7 +295,7 @@ export default function Index() {
 
       isRecordingRef.current = true;
       setIsRecording(true);
-      pitchHistoryRef.current = []; // Reset history when starting new recording
+      pitchHistoryRef.current = [];
 
       detectPitch();
     } catch (err) {
@@ -273,7 +312,7 @@ export default function Index() {
         muted
         style={{ position: "absolute", width: 1, height: 1 }}
       />
-      <canvas ref={canvasRef} className="fixed inset-0 touch-none" />
+      <canvas ref={canvasRef} className="fixed inset-0 touch-none m-auto" />
     </>
   );
 }
