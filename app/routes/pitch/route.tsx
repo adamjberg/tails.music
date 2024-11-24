@@ -191,7 +191,10 @@ export default function Index() {
         ]);
 
         chunksRef.current = [];
-        mediaRecorderRef.current = new MediaRecorder(combinedStream);
+        const options = { mimeType: "video/mp4" };
+        mediaRecorderRef.current = MediaRecorder.isTypeSupported("video/mp4")
+          ? new MediaRecorder(combinedStream, options)
+          : new MediaRecorder(combinedStream, { mimeType: "video/webm" });
 
         mediaRecorderRef.current.ondataavailable = (e) => {
           if (e.data.size > 0) {
@@ -200,11 +203,15 @@ export default function Index() {
         };
 
         mediaRecorderRef.current.onstop = () => {
-          const blob = new Blob(chunksRef.current, { type: "video/webm" });
+          const mimeType = MediaRecorder.isTypeSupported("video/mp4")
+            ? "video/mp4"
+            : "video/webm";
+          const extension = mimeType === "video/mp4" ? "mp4" : "webm";
+          const blob = new Blob(chunksRef.current, { type: mimeType });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = "recording.webm";
+          a.download = `recording.${extension}`;
           a.click();
           URL.revokeObjectURL(url);
         };
