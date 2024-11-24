@@ -22,6 +22,10 @@ export default function Index() {
   const [lastPitch, setLastPitch] = useState<number | null>(null);
   const pitchHistoryRef = useRef<number[]>([]);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameRef = useRef<number>();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     // Start video stream when component mounts
@@ -50,8 +54,96 @@ export default function Index() {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
       }
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
   }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const drawFrame = () => {
+      // Set canvas size to match window dimensions
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Draw video
+      ctx.save();
+      ctx.scale(-1, 1); // Mirror the video
+      ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
+      ctx.restore();
+
+      // Draw UI elements
+      ctx.fillStyle = "white";
+      ctx.font = "bold 48px sans-serif";
+      ctx.textAlign = "center";
+
+      // Draw pitch text
+      if (lastPitch) {
+        const text = `${findClosestNote(lastPitch)} - ${Math.round(
+          lastPitch
+        )} Hz`;
+        ctx.fillText(text, canvas.width / 2, 100);
+      }
+
+      // Draw start/stop button
+      const buttonWidth = 120;
+      const buttonHeight = 50;
+      const buttonX = (canvas.width - buttonWidth) / 2;
+      const buttonY = canvas.height - 100;
+
+      ctx.fillStyle = isRecording ? "#ef4444" : "#22c55e"; // red-500 : green-500
+      ctx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 8);
+      ctx.fill();
+
+      ctx.fillStyle = "white";
+      ctx.font = "20px sans-serif";
+      ctx.fillText(
+        isRecording ? "Stop" : "Start",
+        canvas.width / 2,
+        buttonY + 32
+      );
+
+      animationFrameRef.current = requestAnimationFrame(drawFrame);
+    };
+
+    drawFrame();
+
+    const handleClick = (e: MouseEvent) => {
+      const buttonWidth = 120;
+      const buttonHeight = 50;
+      const buttonX = (canvas.width - buttonWidth) / 2;
+      const buttonY = canvas.height - 100;
+
+      if (
+        e.clientX >= buttonX &&
+        e.clientX <= buttonX + buttonWidth &&
+        e.clientY >= buttonY &&
+        e.clientY <= buttonY + buttonHeight
+      ) {
+        if (isRecording) {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      }
+    };
+
+    canvas.addEventListener("click", handleClick);
+
+    return () => {
+      canvas.removeEventListener("click", handleClick);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [isRecording, lastPitch]);
 
   const findClosestNote = (frequency: number) => {
     return Array.from(frequencies.entries()).reduce((closest, [note, freq]) => {
@@ -59,6 +151,19 @@ export default function Index() {
       const closestDiff = Math.abs(closest[1] - frequency);
       return currentDiff < closestDiff ? [note, freq] : closest;
     }, Array.from(frequencies.entries())[0])[0];
+  };
+
+  const stopRecording = () => {
+    isRecordingRef.current = false;
+    setIsRecording(false);
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
   };
 
   const startRecording = async () => {
@@ -75,6 +180,37 @@ export default function Index() {
       const detector = PitchDetector.forFloat32Array(analyser.fftSize);
       detector.minVolumeDecibels = -20;
       const dataArray = new Float32Array(detector.inputLength);
+
+      // Start canvas recording
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const canvasStream = canvas.captureStream(30);
+        const combinedStream = new MediaStream([
+          ...canvasStream.getTracks(),
+          ...stream.getTracks(),
+        ]);
+
+        chunksRef.current = [];
+        mediaRecorderRef.current = new MediaRecorder(combinedStream);
+
+        mediaRecorderRef.current.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            chunksRef.current.push(e.data);
+          }
+        };
+
+        mediaRecorderRef.current.onstop = () => {
+          const blob = new Blob(chunksRef.current, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "recording.webm";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        mediaRecorderRef.current.start();
+      }
 
       const detectPitch = () => {
         if (!isRecordingRef.current) {
@@ -104,39 +240,9 @@ export default function Index() {
   };
 
   return (
-    <div className="relative h-[100dvh] w-full">
-      <div className="absolute inset-0">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="h-full w-full object-cover"
-          style={{
-            aspectRatio: "9/16",
-            objectPosition: "center",
-            transform: "scaleX(-1)",
-          }}
-        />
-      </div>
-      <div className="relative z-10 mx-auto max-w-screen-lg h-full flex flex-col">
-        <div className="p-4 pt-16 flex flex-col justify-between h-full safe-area-inset-top safe-area-inset-bottom">
-          <div className="text-center text-white font-bold text-3xl">
-            {!!lastPitch
-              ? `${findClosestNote(lastPitch)} - ${Math.round(lastPitch)} Hz`
-              : ""}
-          </div>
-          {!isRecording && (
-            <button
-              onClick={() => {
-                startRecording();
-              }}
-              className="mx-auto block px-4 py-2 text-white rounded bg-green-500 hover:bg-green-600"
-            >
-              Start
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    <>
+      <video ref={videoRef} autoPlay playsInline style={{ display: "none" }} />
+      <canvas ref={canvasRef} className="fixed inset-0 touch-none" />
+    </>
   );
 }
