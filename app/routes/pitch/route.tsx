@@ -140,25 +140,29 @@ export default function Index() {
         );
       }
 
-      const buttonWidth = 360; // 3x larger
-      const buttonHeight = 150; // 3x larger
-      const buttonX = (offscreenCanvas.width - buttonWidth) / 2;
-      const buttonY = offscreenCanvas.height - 200; // Moved up slightly to accommodate larger size
-
-      offscreenCtx.fillStyle = isRecording ? "#ef4444" : "#22c55e";
-      offscreenCtx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 24); // Increased border radius
-      offscreenCtx.fill();
-
-      offscreenCtx.fillStyle = "white";
-      offscreenCtx.font = "60px sans-serif"; // 3x larger font
-      offscreenCtx.fillText(
-        isRecording ? "Stop" : "Start",
-        offscreenCanvas.width / 2,
-        buttonY + 96 // Adjusted for larger button
-      );
+      const buttonWidth = 120; // Regular size
+      const buttonHeight = 50; // Regular size
+      const buttonX = (canvas.width - buttonWidth) / 2;
+      const buttonY = canvas.height - 80; // Regular position from bottom
 
       // Draw offscreen canvas to display canvas
       ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+
+      // Draw button on main canvas
+      ctx.fillStyle = isRecording ? "#ef4444" : "#22c55e";
+      ctx.roundRect(buttonX, buttonY, buttonWidth, buttonHeight, 8); // Regular border radius
+      ctx.fill();
+
+      // Draw button text on main canvas
+      ctx.fillStyle = "white";
+      ctx.font = "20px sans-serif"; // Regular font size
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(
+        isRecording ? "Stop" : "Start",
+        canvas.width / 2,
+        buttonY + buttonHeight / 2 // Center vertically in button
+      );
 
       animationFrameRef.current = requestAnimationFrame(drawFrame);
     };
