@@ -128,7 +128,7 @@ export default function Index() {
         offscreenCtx.fillText(
           `${closestNote} (${Math.round(noteFreq!)} Hz)`,
           offscreenCanvas.width / 2,
-          80
+          160
         );
 
         // Draw actual detected pitch below
@@ -136,7 +136,7 @@ export default function Index() {
         offscreenCtx.fillText(
           `Detected: ${Math.round(lastPitch)} Hz`,
           offscreenCanvas.width / 2,
-          160
+          160 + 48 + 16
         );
       }
 
