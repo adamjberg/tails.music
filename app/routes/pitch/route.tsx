@@ -27,7 +27,6 @@ export default function Index() {
   const animationFrameRef = useRef<number>();
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const canvasStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     // Create offscreen canvas
@@ -118,14 +117,27 @@ export default function Index() {
 
       // Draw UI elements on offscreen canvas
       offscreenCtx.fillStyle = "white";
-      offscreenCtx.font = "bold 48px sans-serif";
       offscreenCtx.textAlign = "center";
 
       if (lastPitch) {
-        const text = `${findClosestNote(lastPitch)} - ${Math.round(
-          lastPitch
-        )} Hz`;
-        offscreenCtx.fillText(text, offscreenCanvas.width / 2, 100);
+        const closestNote = findClosestNote(lastPitch);
+        const noteFreq = frequencies.get(closestNote);
+
+        // Draw closest note and its frequency
+        offscreenCtx.font = "bold 64px sans-serif";
+        offscreenCtx.fillText(
+          `${closestNote} (${Math.round(noteFreq!)} Hz)`,
+          offscreenCanvas.width / 2,
+          80
+        );
+
+        // Draw actual detected pitch below
+        offscreenCtx.font = "48px sans-serif";
+        offscreenCtx.fillText(
+          `Detected: ${Math.round(lastPitch)} Hz`,
+          offscreenCanvas.width / 2,
+          160
+        );
       }
 
       const buttonWidth = 360; // 3x larger
@@ -147,13 +159,6 @@ export default function Index() {
 
       // Draw offscreen canvas to display canvas
       ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
-
-      if (canvasStreamRef.current) {
-        const videoTrack = canvasStreamRef.current.getVideoTracks()[0];
-        if (videoTrack) {
-          (videoTrack as any).requestFrame();
-        }
-      }
 
       animationFrameRef.current = requestAnimationFrame(drawFrame);
     };
@@ -240,8 +245,7 @@ export default function Index() {
       // Start canvas recording
       const offscreenCanvas = offscreenCanvasRef.current;
       if (offscreenCanvas) {
-        const canvasStream = offscreenCanvas.captureStream(0);
-        canvasStreamRef.current = canvasStream;
+        const canvasStream = offscreenCanvas.captureStream(30);
         const combinedStream = new MediaStream([
           ...canvasStream.getTracks(),
           ...stream.getTracks(),
