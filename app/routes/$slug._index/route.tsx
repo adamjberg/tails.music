@@ -33,7 +33,6 @@ export default function Post() {
         className="prose prose-lg max-w-none"
         dangerouslySetInnerHTML={{ __html: post.html }}
       />
-      {post.title && <h1>{post.title}</h1>}
     </div>
   );
 }

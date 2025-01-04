@@ -34,7 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <nav>
-          <div className="max-w-screen-md mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="max-w-screen-md mx-auto px-4 md:px-0 py-3 flex justify-between items-center">
             <Link to="/" className="text-xl font-bold no-underline text-white">
               tails.music
             </Link>
@@ -51,12 +51,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
         <ScrollRestoration />
         <Scripts />
-      </body>
-      {/* Cal element-click embed code begins */}
-      <script
-        type="text/javascript"
-        dangerouslySetInnerHTML={{
-          __html: `
+        {/* Cal element-click embed code begins */}
+        <script
+          type="text/javascript"
+          dangerouslySetInnerHTML={{
+            __html: `
           (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
           Cal("init", "15min", {origin:"https://cal.com"});
 
@@ -67,9 +66,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           Cal.ns["15min"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
           `,
-        }}
-      />
-      {/* Cal element-click embed code ends */}
+          }}
+        />
+        {/* Cal element-click embed code ends */}
+      </body>
     </html>
   );
 }
