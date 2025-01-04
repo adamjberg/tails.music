@@ -15,6 +15,7 @@
     "@remix-run/react": "^2.14.0",
     "@remix-run/serve": "^2.14.0",
     "canvas": "^2.11.2",
+    "gray-matter": "^4.0.3",
     "isbot": "^4.1.0",
     "marked": "^15.0.1",
     "pitchy": "^4.1.0",

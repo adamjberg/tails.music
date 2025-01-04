@@ -1,38 +1,13 @@
-import fs from "fs/promises";
-import { marked } from "marked";
 import type { MetaFunction } from "@remix-run/node";
 import { useLoaderData, Link } from "@remix-run/react";
+import { postService } from "~/services/postService";
 
 export const meta: MetaFunction = () => {
   return [{ title: "music.tails" }];
 };
 
 export const loader = async () => {
-  const postsDir = "app/posts";
-  const files = await fs.readdir(postsDir);
-  const posts = await Promise.all(
-    files
-      .filter((file) => file.endsWith(".md"))
-      .map(async (file) => {
-        const filePath = `${postsDir}/${file}`;
-        const content = await fs.readFile(filePath, "utf-8");
-        const stats = await fs.stat(filePath);
-        const slug = file.replace(".md", "");
-
-        // Extract title from first line of markdown
-        const title = content.split("\n")[0].replace("#", "").trim();
-
-        return {
-          title,
-          slug,
-          createdAt: stats.birthtime,
-        };
-      })
-  );
-
-  // Sort by created date descending
-  posts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
+  const posts = await postService.getPosts();
   return { posts };
 };
 
@@ -52,7 +27,7 @@ export default function Index() {
               {post.title}
             </Link>
             <div className="text-sm text-gray-500">
-              {post.createdAt.toLocaleDateString()}
+              {post.date.toLocaleDateString()}
             </div>
           </div>
         ))}

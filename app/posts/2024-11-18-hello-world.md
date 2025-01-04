@@ -1,3 +1,9 @@
+---
+title: Hello, world!
+slug: hello-world
+date: 2024-11-18
+---
+
 # Hello, world!
 
 I've lost count of the number of times I have written my "first post" on a new website. Here we are one more time, trying to believe that I will be able to maintain some kind of consistency.
