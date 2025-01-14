@@ -37,6 +37,8 @@ async function fetchVideosForSound(url) {
   
   // Fetch all pages of videos
   for (let cursor = 0; cursor < totalPages; cursor++) {
+    console.log(`Fetching page ${cursor + 1} of ${totalPages}...`);
+    
     const listParams = new URLSearchParams({
       ...commonParams,
       count: videosPerPage.toString(),
@@ -55,14 +57,16 @@ async function fetchVideosForSound(url) {
     const listData = await listResponse.json();
     if (listData.itemList) {
       allVideos = allVideos.concat(listData.itemList);
+      console.log(`Retrieved ${listData.itemList.length} videos`);
       
       // Write current page data to file
       const filePath = path.join(dataDir, `${musicId}.json`);
       fs.writeFileSync(filePath, JSON.stringify(allVideos, null, 2));
+      console.log(`Saved ${allVideos.length} total videos to ${filePath}`);
     }
 
     // Small delay between requests
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   return {
