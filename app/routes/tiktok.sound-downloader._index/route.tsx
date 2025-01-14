@@ -1,5 +1,20 @@
-import { Form } from "@remix-run/react";
+import { ActionFunctionArgs } from "@remix-run/node";
+import { Form, redirect } from "@remix-run/react";
 import { useEffect, useState } from "react";
+import { db } from "~/services/databaseService";
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const url = formData.get("url");
+  const email = formData.get("email");
+
+  await db.getDb().collection("sound-download-requests").insertOne({
+    url,
+    email,
+  });
+
+  return redirect("/tiktok/sound-downloader/success");
+};
 
 export default function TikTokSoundDownloader() {
   const [timeLeft, setTimeLeft] = useState({
@@ -31,13 +46,13 @@ export default function TikTokSoundDownloader() {
 
   return (
     <div className="md:container md:mx-auto flex justify-center">
-      <div className="max-w-2xl w-full p-6">
+      <div className="max-w-2xl w-full p-2">
         <h1 className="text-3xl font-bold text-center mb-8">
           TikTok Sound UGC Video Downloader
         </h1>
 
         <h2 className="text-xl font-bold text-center mb-4">
-          Countdown until TikTok Ban
+          TikTok will be banned in the US on January 19
         </h2>
 
         <div className="flex justify-center gap-4 mb-8">
@@ -59,19 +74,9 @@ export default function TikTokSoundDownloader() {
           </div>
         </div>
 
-        <div className="prose text-center mb-8">
+        <div className="prose text-center mb-4">
           <p className="text-lg">
-            With TikTok's uncertain future in the US, now is the critical time
-            to download and preserve your sound's UGC videos.
-          </p>
-          <p className="text-lg">
-            Don't risk losing valuable user-generated content featuring your
-            sound. Our tool helps you quickly download all videos using your
-            sound before potential platform restrictions take effect.
-          </p>
-          <p className="font-semibold text-yellow-400">
-            ⚠️ Act now - once TikTok access is restricted, it may be too late to
-            retrieve your content!
+            Save your sound's videos now before they're gone
           </p>
         </div>
 
