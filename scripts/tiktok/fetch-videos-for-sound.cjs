@@ -3,7 +3,7 @@ const { cookie, commonParams } = require('./tiktok-request-data.cjs');
 const fs = require('fs');
 const path = require('path');
 
-async function fetchVideosForSound(url) {
+async function fetchVideosForSound(url, startCursor = 0) {
   // Extract music ID from URL
   const musicId = url.split('-').pop();
   // First request - music details
@@ -34,9 +34,20 @@ async function fetchVideosForSound(url) {
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
+
+  // Load existing data if available
+  const filePath = path.join(dataDir, `${musicId}.json`);
+  if (fs.existsSync(filePath)) {
+    try {
+      allVideos = JSON.parse(fs.readFileSync(filePath));
+      console.log(`Loaded ${allVideos.length} existing videos from ${filePath}`);
+    } catch (err) {
+      console.error('Error loading existing data:', err);
+    }
+  }
   
-  // Fetch all pages of videos
-  for (let cursor = 0; cursor < totalPages; cursor++) {
+  // Fetch remaining pages of videos
+  for (let cursor = startCursor; cursor < totalPages; cursor++) {
     console.log(`Fetching page ${cursor + 1} of ${totalPages}...`);
     
     const listParams = new URLSearchParams({
@@ -60,9 +71,10 @@ async function fetchVideosForSound(url) {
       console.log(`Retrieved ${listData.itemList.length} videos`);
       
       // Write current page data to file
-      const filePath = path.join(dataDir, `${musicId}.json`);
       fs.writeFileSync(filePath, JSON.stringify(allVideos, null, 2));
       console.log(`Saved ${allVideos.length} total videos to ${filePath}`);
+    } else {
+      console.error('No itemList found in the response', listData);
     }
 
     // Small delay between requests
@@ -81,8 +93,9 @@ async function fetchVideosForSound(url) {
 // If called from command line with URL argument
 if (require.main === module) {
   const url = process.argv[2];
+  const startCursor = parseInt(process.argv[3]) || 0;
   if (url) {
-    fetchVideosForSound(url)
+    fetchVideosForSound(url, startCursor)
       .then(data => console.log(data))
       .catch(err => console.error('Error:', err));
   } else {
