@@ -65,6 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           // \`data-cal-config='{"layout":"month_view"}'\`
 
           Cal.ns["15min"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+          Cal("preload", { calLink: "adam-xyz/free-strategy-consultation" });
           `,
           }}
         />
