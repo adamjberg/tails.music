@@ -1,9 +1,8 @@
 import type { MetaFunction } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
 import { Flywheel } from "../flywheel._index/flywheel";
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Free Strategy Call" }];
+  return [{ title: "tails.music" }];
 };
 
 function BookFreeStrategyCall() {
@@ -19,7 +18,7 @@ function BookFreeStrategyCall() {
   );
 }
 
-export default function Free15MinuteAdStrategyCall() {
+export default function Index() {
   return (
     <>
       <div className="mx-auto max-w-screen-md px-4">
