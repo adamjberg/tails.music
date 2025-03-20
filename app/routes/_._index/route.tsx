@@ -5,9 +5,10 @@ export const meta: MetaFunction = () => {
   return [{ title: "tails.music" }];
 };
 
-function BookFreeStrategyCall() {
+function BookFreeStrategyCall({ id }: { id: string }) {
   return (
     <button
+      data-umami-event={`book-call-${id}`}
       data-cal-link="adam-xyz/free-strategy-consultation"
       data-cal-namespace="15min"
       data-cal-config='{"layout":"month_view"}'
@@ -31,7 +32,7 @@ export default function Index() {
         </p>
 
         <div className="flex justify-center my-12">
-          <BookFreeStrategyCall />
+          <BookFreeStrategyCall id="1" />
         </div>
 
         <div className="flex justify-center ">
@@ -48,7 +49,7 @@ export default function Index() {
         </p>
 
         <div className="flex justify-center my-8">
-          <BookFreeStrategyCall />
+          <BookFreeStrategyCall id="2" />
         </div>
       </div>
     </>

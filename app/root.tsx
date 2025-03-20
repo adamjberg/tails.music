@@ -39,6 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               tails.music
             </Link>
             <button
+              data-umami-event="book-call-nav"
               data-cal-link="adam-xyz/free-strategy-consultation"
               data-cal-namespace="15min"
               data-cal-config='{"layout":"month_view"}'
