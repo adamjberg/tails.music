@@ -70,6 +70,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
         {/* Cal element-click embed code ends */}
+        {process.env.NODE_ENV === "production" && (
+          <script
+            defer
+            src="https://analytics.xyzdigital.com/script.js"
+            data-website-id="896f22e4-7ddf-479d-a699-0e873e7fc9b0"
+          ></script>
+        )}
       </body>
     </html>
   );
