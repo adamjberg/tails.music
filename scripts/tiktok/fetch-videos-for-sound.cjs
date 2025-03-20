@@ -18,7 +18,7 @@ async function fetchVideosForSound(url, startCursor = 0) {
       'Accept': 'application/json',
       cookie,
       'priority': 'u=1, i',
-      'referer': 'https://www.tiktok.com/music/original-sound-7396833524533250858'
+      'referer': url
     }
   });
 
