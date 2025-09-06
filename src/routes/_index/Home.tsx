@@ -1,6 +1,5 @@
-import "./index.css";
 import { Link } from "react-router-dom";
-import { InstagramLogo } from "./InstagramLogo";
+import { InstagramLogo } from "../../InstagramLogo";
 import adam from "./adam.jpg";
 
 export function Home() {
@@ -19,7 +18,7 @@ export function Home() {
             Hi, I'm Adam
           </h2>
           <p className="text-gray-300 text-center max-w-2xl leading-relaxed">
-            I'm building tech to put the power back in indie artists' hands.
+            I empower indie music artists via technology
           </p>
         </div>
       </div>

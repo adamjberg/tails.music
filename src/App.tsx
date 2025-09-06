@@ -1,8 +1,8 @@
 import "./index.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Home } from "./Home.tsx";
-import { Blog } from "./Blog.tsx";
-import { MusicIndustryThoughts } from "./posts/MusicIndustryThoughts.tsx";
+import { Home } from "./routes/_index/Home.tsx";
+import { Blog } from "./routes/blog/Blog.tsx";
+import { MusicIndustryThoughts } from "./routes/blog/posts/MusicIndustryThoughts.tsx";
 
 export function App() {
   return (

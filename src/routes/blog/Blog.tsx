@@ -1,6 +1,5 @@
-import "./index.css";
 import { Link } from "react-router-dom";
-import { PostPreview } from "./PostPreview";
+import { PostPreview } from "../../PostPreview";
 
 export function Blog() {
   return (
