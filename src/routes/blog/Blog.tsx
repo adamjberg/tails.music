@@ -6,14 +6,14 @@ export function Blog() {
   const posts = getBlogPostMetas();
   
   return (
-    <div className="min-h-screen flex flex-col items-center px-8 py-2">
-      <div className="max-w-[800px] w-full mt-2">
+    <div className="min-h-screen flex flex-col items-center px-6 py-8 md:px-12 lg:px-16">
+      <div className="max-w-4xl w-full">
         <div className="flex flex-col items-center">
-          <h1 className="text-4xl font-bold text-center mb-8">
+          <h1 className="text-4xl font-bold text-center mb-12">
             Blog
           </h1>
           
-          <div className="w-full max-w-md space-y-6">
+          <div className="w-full max-w-2xl space-y-8">
             {posts.map((post) => (
               <Link key={post.slug} to={`/blog/${post.slug}`}>
                 <PostPreview
