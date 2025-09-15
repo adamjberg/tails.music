@@ -14,6 +14,17 @@ export function MarkdownPost({ post }: MarkdownPostProps) {
             {post.title}
           </h1>
           
+          {post.image && (
+            <div className="w-full mb-8">
+              <img 
+                src={post.image} 
+                alt={post.title}
+                className="w-full max-w-2xl mx-auto rounded-lg shadow-lg object-cover"
+                style={{ maxHeight: '400px' }}
+              />
+            </div>
+          )}
+          
           <div className="prose prose-lg max-w-none">
             {post.excerpt && (
               <div className="text-sm mb-6">
