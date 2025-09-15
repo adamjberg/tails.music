@@ -6,6 +6,9 @@ out
 dist
 *.tgz
 
+# generated data (regenerated at build time)
+src/data/blog-posts.json
+
 # code coverage
 coverage
 *.lcov
