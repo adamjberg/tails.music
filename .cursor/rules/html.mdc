@@ -1,0 +1,9 @@
+---
+description: Rules for HTML files
+globs: "*.html"
+alwaysApply: false
+---
+
+# Styling
+
+Always use inline styles
