@@ -37,39 +37,61 @@
 
 
     <h2 style="font-size: 1.3em; margin: 36px 0 24px 0; color: #f4f7fa; font-weight: 600;">Artists I've Worked With</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 32px; justify-content: center;">
-        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px;">
-            <div style="width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 3px solid #333; background: #22262f; display: flex; justify-content: center; align-items: center;">
-                <img src="kennedy.jpg" alt="Kennedy Ryon" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <span style="margin-top: 8px; color: #e2e3eb; font-size: 0.98em;">Kennedy Ryon</span>
-            <span style="margin-top: 8px; color: #b1baf3; font-size: 0.97em; display: block; line-height: 1.45; background: #1b1f29; border-radius: 6px; padding: 12px 16px; margin-bottom: 4px;">
-                <div>- Grew from 25k to 400k monthly listeners since January 2024</div>
-                <div>- Sold out 8 city tour June 2025</div>
-                <div>- $80k+ in revenue outside of streaming revenue</div>
-            </span>
-        </div>
-        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px;">
+    <div id="artists-scroll" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; padding-bottom: 8px;">
+        <div id="artists-carousel" style="display: flex; flex-wrap: nowrap; gap: 32px; padding: 8px 8px 16px 8px; width: max-content; margin: 0 auto;">
+        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px; flex: 0 0 auto; scroll-snap-align: center;">
             <div style="width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 3px solid #333; background: #22262f; display: flex; justify-content: center; align-items: center;">
                 <img src="mayyadda.jpg" alt="Mayyadda" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <span style="margin-top: 8px; color: #e2e3eb; font-size: 0.98em;">Mayyadda</span>
             <span style="margin-top: 8px; color: #b1baf3; font-size: 0.97em; display: block; line-height: 1.45; background: #1b1f29; border-radius: 6px; padding: 12px 16px; margin-bottom: 4px;">
-                <div>- Made $1k in 7 days from voice memo</div>
-                <div>- Grew mailing list from 0 to 1500+</div>
+                <div>- $1k in 7 days from voice memo</div>
+                <div>- Contact list from 0 to 1500+</div>
             </span>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px;">
+        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px; flex: 0 0 auto; scroll-snap-align: center;">
+            <div style="width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 3px solid #333; background: #22262f; display: flex; justify-content: center; align-items: center;">
+                <img src="kennedy.jpg" alt="Kennedy Ryon" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <span style="margin-top: 8px; color: #e2e3eb; font-size: 0.98em;">Kennedy Ryon</span>
+            <span style="margin-top: 8px; color: #b1baf3; font-size: 0.97em; display: block; line-height: 1.45; background: #1b1f29; border-radius: 6px; padding: 12px 16px; margin-bottom: 4px;">
+                <div>- $80k+ in direct to fan revenue</div>
+                <div>- Sold out 8 city tour</div>
+                <div>- 25k to 400k listeners</div>
+            </span>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; max-width: 260px; flex: 0 0 auto; scroll-snap-align: center;">
             <div style="width: 88px; height: 88px; border-radius: 50%; overflow: hidden; border: 3px solid #333; background: #22262f; display: flex; justify-content: center; align-items: center;">
                 <img src="michaelkimsheng.jpg" alt="Michael Kim-Sheng" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
             <span style="margin-top: 8px; color: #e2e3eb; font-size: 0.98em;">Michael Kim-Sheng</span>
             <span style="margin-top: 8px; color: #b1baf3; font-size: 0.97em; display: block; line-height: 1.45; background: #1b1f29; border-radius: 6px; padding: 12px 16px; margin-bottom: 4px;">
-                <div>- Sold 300+ tickets to his first show</div>
+                <div>- Sold 300+ tickets to first show</div>
                 <div>- Built audience of 30k+</div>
             </span>
         </div>
+        </div>
     </div>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var scrollContainer = document.getElementById('artists-scroll');
+    var track = document.getElementById('artists-carousel');
+    if (!scrollContainer || !track) return;
+
+    var items = track.children;
+    if (!items || items.length === 0) return;
+
+    var middleIndex = Math.floor(items.length / 2);
+    var middleItem = items[middleIndex];
+    if (!middleItem) return;
+
+    var itemCenter = middleItem.offsetLeft + middleItem.offsetWidth / 2;
+    var containerCenter = scrollContainer.clientWidth / 2;
+    var desiredScrollLeft = Math.max(0, itemCenter - containerCenter);
+
+    scrollContainer.scrollLeft = desiredScrollLeft;
+  });
+</script>
 </body>
 </html>
